@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
+import { AppState } from 'src/app/app.reducer';
 import { AuthService } from 'src/app/services/auth.service';
+import * as actions from 'src/app/shared/ui.actions';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -10,14 +14,17 @@ import Swal from 'sweetalert2';
   styles: [
   ]
 })
-export class RegisterComponent implements OnInit {
+export class RegisterComponent implements OnInit, OnDestroy {
 
   registroForma: FormGroup;
+  cargando: boolean = false;
+  uiSubscription:  Subscription;
 
 
   constructor(private fb: FormBuilder, 
               private authService: AuthService,
-              private router: Router) {
+              private router: Router,
+              private store: Store<AppState>  ) {
 
     this.registroForma =  this.fb.group({
 
@@ -27,7 +34,14 @@ export class RegisterComponent implements OnInit {
     
     });
 
+    this.uiSubscription = this.store.select( 'ui' ).subscribe( state => this.cargando = state.isLoading ); 
+
    }
+  ngOnDestroy(): void {
+    
+    this.uiSubscription.unsubscribe();
+
+  }
 
   ngOnInit() {
 
@@ -38,20 +52,24 @@ export class RegisterComponent implements OnInit {
 
     if( this.registroForma.invalid  ) { return;}
 
-    Swal.fire({
-      title: 'Please, wait...',
-      didOpen: () => {
+    this.store.dispatch(  actions.isLoading() );
 
-        Swal.showLoading()
+    // Swal.fire({
+    //   title: 'Please, wait...',
+    //   didOpen: () => {
 
-      }});
+    //     Swal.showLoading()
+
+    //   }});
 
      const { nombre, correo, password  } = this.registroForma.value;
      
      this.authService.crearUsuario( nombre, correo, password )
         .then ( credenciales => {
           
-          Swal.close();
+         // Swal.close();
+
+         this.store.dispatch(  actions.stopLoading() );
 
           this.router.navigateByUrl( '/' );
 
