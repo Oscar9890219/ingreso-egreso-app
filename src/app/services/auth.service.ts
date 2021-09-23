@@ -35,11 +35,11 @@ export class AuthService {
   initAuthListener() {
 
     this.auth.authState.subscribe(fuser => {
-      console.log(fuser);
+    
 
       if (fuser) {
 
-        console.log('Entro fuser');
+        
 
         this.userSubscription = this.fireStore.doc(`${fuser.uid}/usuario`).valueChanges()
           .subscribe((firestoreUser: any) => {
@@ -52,10 +52,10 @@ export class AuthService {
 
       } else {
 
-        console.log('NO Entro fuser');
+      
         if (this.userSubscription) {
           this._user;
-          this.userSubscription.unsubscribe();
+          this.userSubscription?.unsubscribe();
           this.store.dispatch( unSetItems() )
         }
 

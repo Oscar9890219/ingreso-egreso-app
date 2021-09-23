@@ -1,9 +1,15 @@
 import { createReducer, on } from '@ngrx/store';
+import { AppState } from '../app.reducer';
 import { IngresoEgreso } from '../Models/ingreso.egreso.model';
 import * as actions from './ingreso-egreso.actions';
 
 export interface State {
     items: IngresoEgreso[]; 
+}
+
+
+export interface AppStateWithIgreso extends AppState{
+    ingresosEgresos: State
 }
 
 export const initialState: State = {
